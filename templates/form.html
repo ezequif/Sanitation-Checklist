@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sanitation Checklist</title>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+    <style>
+        canvas { border: 1px solid black; background-color: white; }
+        label { display: inline-block; margin-left: 5px; }
+        .checkbox-container { display: flex; align-items: center; margin-bottom: 8px; }
+        .footer {
+            margin-top: 40px;
+            padding: 10px;
+            font-size: 12px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h2>Sanitation Checklist</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <p><strong>{{ form.employee_name.label }}</strong> {{ form.employee_name() }}</p>
+        <p><strong>{{ form.date.label }}</strong> {{ form.date() }}</p>
+
+        <h3>Sanitation Tasks</h3>
+        {% for field in form if field.type == 'BooleanField' %}
+            <div class="checkbox-container">
+                {{ field() }} <label for="{{ field.id }}">{{ field.label.text }}</label>
+            </div>
+        {% endfor %}
+
+        <h3>Manager Signature</h3>
+        <canvas id="managerCanvas" width="300" height="100"></canvas>
+        <input type="hidden" id="manager_signature" name="manager_signature">
+        <button type="button" onclick="clearSignature('managerCanvas', managerPad)">Clear</button>
+
+        <h3>Peer Review Signature</h3>
+        <canvas id="peerCanvas" width="300" height="100"></canvas>
+        <input type="hidden" id="peer_signature" name="peer_signature">
+        <button type="button" onclick="clearSignature('peerCanvas', peerPad)">Clear</button>
+
+        <p>{{ form.submit() }}</p>
+    </form>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p><strong>CONFIDENTIAL: PROPERTY OF BLUE MOUNTAIN FLAVORS</strong></p>
+        <p>Manual 2.2 SOP-Warehousing Form 2.2B-1 Daily Sanitation Checklist for Buildings 1-2</p>
+        <p>Effective Date: 10/15/2018 | Revised: 2023.3.22 (Jon S.) | Reviewed: 2024.12.4 (Jon S.)</p>
+    </div>
+
+    <script>
+        let managerCanvas = document.getElementById("managerCanvas");
+        let peerCanvas = document.getElementById("peerCanvas");
+
+        let managerPad = new SignaturePad(managerCanvas, {
+            backgroundColor: 'white',
+            penColor: 'black'
+        });
+
+        let peerPad = new SignaturePad(peerCanvas, {
+            backgroundColor: 'white',
+            penColor: 'black'
+        });
+
+        function saveSignatures() {
+            document.getElementById("manager_signature").value = managerPad.toDataURL();
+            document.getElementById("peer_signature").value = peerPad.toDataURL();
+        }
+
+        function clearSignature(canvasId, pad) {
+            pad.clear();
+        }
+
+        document.querySelector("form").addEventListener("submit", function() {
+            saveSignatures();
+        });
+    </script>
+</body>
+</html>
